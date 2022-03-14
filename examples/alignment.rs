@@ -21,7 +21,7 @@ fn spawn_tile_map(
                 } else {
                     Color::NAVY
                 };
-                sprite_grid[[i, j]] = SpriteCell::solid_color(cell_color);
+                sprite_grid[[i, j]] = SpriteCell::color(cell_color);
             }
         }
         commands.spawn_bundle(SpriteGridBundle {

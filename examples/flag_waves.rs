@@ -3,6 +3,7 @@ use bevy_sprite_grid::prelude::*;
 
 fn spawn_grid(
     mut commands: Commands,
+    assets: Res<AssetServer>,
 ) {
     let s = 50.0;
     let cell_size = Vec2::splat(s);
@@ -14,11 +15,19 @@ fn spawn_grid(
         Vec3::Y,
         -Vec3::Y,
     ] {
-        let mut sprite_grid = SpriteGrid::empty([2, 2], cell_size);
-        sprite_grid[[0, 0]] = SpriteCell::solid_color(Color::WHITE);    
-        sprite_grid[[1, 0]] = SpriteCell::solid_color(Color::RED);
-        sprite_grid[[0, 1]] = SpriteCell::solid_color(Color::GREEN);
-        sprite_grid[[1, 1]] = SpriteCell::solid_color(Color::BLUE);
+        let sprite_grid = SpriteGrid::from_fn([2, 2], cell_size, |[x, y]|
+            CellSprite {
+                image_handle: assets.load("sprite.png"),
+                color: if (x + y) % 2 == 0 {
+                    Color::RED
+                } else {
+                    Color::WHITE
+                },
+                flip_x: false,
+                flip_y: (x + y) % 2 == 0,
+                custom_size: Some(cell_size),
+            }    
+        );
         commands.spawn_bundle(SpriteGridBundle {
             sprite_grid,
             transform: Transform::from_translation(3.0 * s * t),

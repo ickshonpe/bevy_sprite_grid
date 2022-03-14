@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use bevy::render::RenderApp;
 use bevy::render::RenderStage;
 use bevy::render::RenderWorld;
+use bevy::render::texture::DEFAULT_IMAGE_HANDLE;
 use bevy::sprite::ExtractedSprite;
 use bevy::sprite::ExtractedSprites;
 use bevy::sprite::SpriteSystem;
@@ -29,13 +30,12 @@ fn extract_tiles(
             global_transform.mul(
             Transform {
                 translation: alignment_translation.extend(0.0),
-                scale: sprite_grid.cell_size.extend(1.0),
                 ..Default::default()
             });
 
         for x in 0..sprite_grid.x_len {
             for y in 0..sprite_grid.y_len {
-                let grid_pos = vec2(x as f32, y as f32) + 0.5 * Vec2::ONE;                
+                let grid_pos = (vec2(x as f32, y as f32) + 0.5 * Vec2::ONE) * sprite_grid.cell_size;                 
                 let cell_transform = Transform {
                     translation: grid_pos.extend(0.0),
                     ..Default::default()
@@ -47,7 +47,7 @@ fn extract_tiles(
                             color,
                             transform,
                             rect: None,
-                            custom_size: custom_size.map(|custom_size| custom_size / sprite_grid.cell_size),
+                            custom_size,
                             flip_x,
                             flip_y,
                             image_handle_id: image_handle.id,
@@ -60,12 +60,23 @@ fn extract_tiles(
                                 color,
                                 transform,
                                 rect,
-                                custom_size: custom_size.map(|custom_size| custom_size / sprite_grid.cell_size),
+                                custom_size,
                                 flip_x,
                                 flip_y,
                                 image_handle_id: texture_atlas.texture.id,
                             });
                         } 
+                    },
+                    &SpriteCell::Color(color) => {
+                        extracted_sprites.sprites.alloc().init(ExtractedSprite {
+                            color,
+                            transform,
+                            rect: None,
+                            custom_size: Some(sprite_grid.cell_size),
+                            flip_x: false,
+                            flip_y: false,
+                            image_handle_id: DEFAULT_IMAGE_HANDLE.id,
+                        });
                     },
                     _ => ()
                 }

@@ -7,10 +7,10 @@ fn spawn_grid(
 ) {
     let cell_size = vec2(100.0, 100.0);
     let mut sprite_grid = SpriteGrid::empty([2, 2], cell_size);
-    sprite_grid[[0, 0]] = SpriteCell::solid_color(Color::WHITE);    
-    sprite_grid[[1, 0]] = SpriteCell::solid_color(Color::RED);
-    sprite_grid[[0, 1]] = SpriteCell::solid_color(Color::GREEN);
-    sprite_grid[[1, 1]] = SpriteCell::solid_color(Color::BLUE);
+    sprite_grid[[0, 0]] = SpriteCell::color(Color::WHITE);    
+    sprite_grid[[1, 0]] = SpriteCell::color(Color::RED);
+    sprite_grid[[0, 1]] = SpriteCell::color(Color::GREEN);
+    sprite_grid[[1, 1]] = SpriteCell::color(Color::BLUE);
     commands.spawn_bundle(SpriteGridBundle {
         sprite_grid,
         ..Default::default()

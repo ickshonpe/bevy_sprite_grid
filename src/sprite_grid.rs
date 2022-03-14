@@ -23,16 +23,6 @@ impl CellSprite {
     }
 }
 
-impl From<Color> for CellSprite {
-    fn from(color: Color) -> Self {
-        CellSprite {
-            color,
-            image_handle: DEFAULT_IMAGE_HANDLE.typed(),
-            ..Default::default()
-        }
-    }
-}
-
 #[derive(Clone, Debug, Default)]
 pub struct CellAtlasSprite {
     pub atlas_handle: Handle<TextureAtlas>,
@@ -58,6 +48,7 @@ impl CellAtlasSprite {
 pub enum SpriteCell {
     Sprite(CellSprite),
     AtlasSprite(CellAtlasSprite),
+    Color(Color),
     Empty
 }
 
@@ -75,7 +66,7 @@ impl From<CellAtlasSprite> for SpriteCell {
 
 impl From<Color> for SpriteCell {
     fn from(color: Color) -> Self {
-        SpriteCell::Sprite(color.into())
+        SpriteCell::Color(color)
     }
 }
 
@@ -94,12 +85,8 @@ impl SpriteCell {
         Self::AtlasSprite(CellAtlasSprite::new(atlas_handle, atlas_index))
     }
 
-    pub fn solid_color(color: Color) -> Self {
-        Self::Sprite (CellSprite {
-            color,
-            image_handle: DEFAULT_IMAGE_HANDLE.typed(),
-            ..Default::default()
-        })
+    pub fn color(color: Color) -> Self {
+        Self::Color(color)
     }
 }
 

@@ -17,7 +17,7 @@ fn spawn_grid(
     for color in [Color::WHITE, Color::RED] {
         let cell_size = Vec2::splat(s);
         let mut sprite_grid = SpriteGrid::empty([1, 1], cell_size);
-        sprite_grid[[0, 0]] = SpriteCell::solid_color(color);     
+        sprite_grid[[0, 0]] = SpriteCell::color(color);     
         commands.spawn_bundle(SpriteGridBundle {
             transform: Transform::from_translation(translation),
             sprite_grid,
