@@ -1,0 +1,20 @@
+[package]
+name = "bevy_sprite_grid"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+keywords = ["bevy", "tilemap", "graphics", "2d", "sprites"]
+categories = ["game-development"]
+repository = "https::/github.com/ickshonpe/bevy_sprite_grid"
+description = "draws sprites in a grid"
+
+[dependencies.bevy]
+version = "0.6"
+default-features = false
+features = ["render"]
+
+[dependencies.copyless]
+version = "0.1.5"
+
+[dev-dependencies]
+bevy = "0.6"
