@@ -1,11 +1,6 @@
-use std::f32::consts::PI;
-use std::ops::Mul;
-
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::math::vec2;
-use bevy::math::vec3;
-use bevy::render::camera;
 use bevy::render::camera::ActiveCamera;
 use bevy::render::camera::ActiveCameras;
 use bevy::render::camera::CameraPlugin;
