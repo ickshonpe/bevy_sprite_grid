@@ -1,5 +1,3 @@
-use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
-use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::math::vec2;
 use bevy::render::camera::ActiveCamera;
 use bevy::render::camera::ActiveCameras;
@@ -157,12 +155,13 @@ fn select_rect(
             if let Some([xs, ys]) = rect {
                 for x in 0..grid.x_len {
                     for y in 0..grid.y_len {
-                        if xs[0] <= x && x <= xs[1]
-                        && ys[0] <= y && y <= ys[1] {
-                            grid[[x, y]] = if (x + y) % 2 == 0 { Color::CYAN } else { Color::AQUAMARINE }.into();
-                        } else {
-                            grid[[x, y]] = if (x + y) % 2 == 0 { Color::ORANGE } else { Color::ORANGE_RED }.into();
-                        }
+                        grid[[x, y]] = 
+                            if xs.contains(&x) && ys.contains(&y) {
+                                [Color::CYAN, Color::AQUAMARINE]
+                            } else {
+                                [Color::ORANGE, Color::ORANGE_RED]
+                            }
+                            [(x + y) % 2].into();
                     }
                 }
             }
@@ -172,40 +171,17 @@ fn select_rect(
 
 fn main() {
     App::new()
-    .insert_resource(
-        WindowDescriptor {
-            vsync: false,
-            ..Default::default()
-        }
-    )
     .add_plugins(DefaultPlugins)
-    .add_plugin(LogDiagnosticsPlugin::default())
-    .add_plugin(FrameTimeDiagnosticsPlugin)
     .add_plugin(SpriteGridPlugin)
-    .add_startup_system_to_stage(  
-        StartupStage::Startup,
+    .add_startup_system(  
         |mut commands: Commands| { commands.spawn_bundle(OrthographicCameraBundle::new_2d()).insert(MyCamera); }
     )
-    .add_startup_system_to_stage(
-        StartupStage::PostStartup,
-        camera_indicators
-    )
-    .add_startup_system_to_stage(
-        StartupStage::PostStartup,
-        draw_grid
-    )
-    .add_system(
-        move_camera
-    )
-    .add_system(
-        select_rect.before("pick")
-    )
-    .add_system(
-        select_cell.label("pick")
-    )
-    .add_system(
-        update_camera_indicators.after("pick")
-    )
+    .add_startup_system(camera_indicators)
+    .add_startup_system(draw_grid)
+    .add_system(move_camera)
+    .add_system(select_rect.before("pick"))
+    .add_system(select_cell.label("pick"))
+    .add_system(update_camera_indicators.after("pick"))
     .run();
 
     

@@ -1,6 +1,6 @@
 use std::ops::Index;
 use std::ops::IndexMut;
-
+use std::ops::Range;
 use bevy::math::vec2;
 use bevy::prelude::*;
 
@@ -253,6 +253,10 @@ impl SpriteGrid {
     
     pub fn set(&mut self, [x, y]: [usize; 2], cell: impl Into<SpriteCell>) {
         self.sprite_cells[x][y] = cell.into();
+    }
+
+    pub fn iter(&self, xs: Range<usize>, ys: Range<usize>) -> impl Iterator<Item=([usize; 2], &SpriteCell)> {
+        xs.flat_map(move |x| ys.clone().map(move |y| ([x, y], &self[[x, y]])))
     }
 }
 

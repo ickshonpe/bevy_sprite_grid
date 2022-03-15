@@ -1,5 +1,3 @@
-
-
 use std::ops::Mul;
 use bevy::math::vec2;
 use bevy::prelude::*;
@@ -63,19 +61,18 @@ fn extract_tiles(
                 continue;
             }
         } else {
-            [[0, sprite_grid.x_len - 1], [0, sprite_grid.y_len - 1]]
+            [0 .. sprite_grid.x_len, 0 .. sprite_grid.y_len]
         };
         
-        for x in xs[0]..=xs[1] {
-            for y in ys[0]..=ys[1] {
+        for ([x, y], sprite_cell) in sprite_grid.iter(xs, ys) {
                 let grid_pos = (vec2(x as f32, y as f32) + 0.5 * Vec2::ONE) * sprite_grid.cell_size;                 
                 let cell_transform = Transform {
                     translation: grid_pos.extend(0.0),
                     ..Default::default()
                 };
                 let transform = grid_transform.mul(cell_transform);
-                match &sprite_grid[[x, y]] {
-                    &SpriteCell::Sprite(CellSprite { ref image_handle, color, flip_x, flip_y, custom_size }) => {
+                match *sprite_cell {
+                    SpriteCell::Sprite(CellSprite { ref image_handle, color, flip_x, flip_y, custom_size }) => {
                         extracted_sprites.sprites.alloc().init(ExtractedSprite {
                             color,
                             transform,
@@ -86,7 +83,7 @@ fn extract_tiles(
                             image_handle_id: image_handle.id,
                         });
                     }
-                    &SpriteCell::AtlasSprite(CellAtlasSprite { ref atlas_handle, atlas_index, color, flip_x, flip_y, custom_size }) => {
+                    SpriteCell::AtlasSprite(CellAtlasSprite { ref atlas_handle, atlas_index, color, flip_x, flip_y, custom_size }) => {
                         if let Some(texture_atlas) = texture_atlases.get(atlas_handle) {
                             let rect = texture_atlas.textures[atlas_index].into();
                             extracted_sprites.sprites.alloc().init(ExtractedSprite {
@@ -100,7 +97,7 @@ fn extract_tiles(
                             });
                         } 
                     },
-                    &SpriteCell::Color(color) => {
+                    SpriteCell::Color(color) => {
                         extracted_sprites.sprites.alloc().init(ExtractedSprite {
                             color,
                             transform,
@@ -112,7 +109,7 @@ fn extract_tiles(
                         });
                     },
                     _ => ()
-                }
+                
             }
         }
     }

@@ -1,4 +1,5 @@
 use std::ops::Mul;
+use std::ops::Range;
 use bevy::math::vec2;
 use bevy::prelude::*;
 use crate::prelude::*;
@@ -20,8 +21,7 @@ pub fn pick_cell(
     if 0.0 <= grid_point.x && grid_point.x < grid.grid_size().x
     && 0.0 <= grid_point.y && grid_point.y < grid.grid_size().y {
         let cell = grid_point / grid.cell_size;
-        let result = [cell.x as usize, cell.y as usize];
-        result.into()
+        [cell.x as usize, cell.y as usize].into()
     } else {
         None
     }
@@ -42,9 +42,7 @@ pub fn pick_cell_unbounded(
     let m = grid_transform.compute_matrix();
     let grid_point = m.inverse().transform_point3(point.extend(0.0)).truncate();
     let cell = grid_point / grid.cell_size;
-    let result = [cell.x.floor() as i64, cell.y.floor() as i64];
-  
-    result
+    [cell.x.floor() as i64, cell.y.floor() as i64]
 }
 
 pub fn pick_rect(
@@ -52,7 +50,7 @@ pub fn pick_rect(
     transform: &GlobalTransform,
     rect_half_size: Vec2,
     rect_transform: &GlobalTransform,
-) -> Option<[[usize; 2]; 2]> {
+) -> Option<[Range<usize>; 2]> {
     if grid.x_len == 0 || grid.y_len == 0 {
         return None;
     }
@@ -83,13 +81,7 @@ pub fn pick_rect(
     if max_y < 0 { return None }
     if grid.x_len as i64 <= min_x { return None }
     if grid.y_len as i64 <= min_y { return None }
-    let xs = [
-        min_x.max(0) as usize,
-        (max_x as usize).clamp(0, grid.x_len - 1)
-    ];
-    let ys = [
-        min_y.max(0) as usize,
-        (max_y as usize).clamp(0, grid.y_len - 1)
-    ];
+    let xs = min_x.max(0) as usize .. (max_x as usize + 1).clamp(0, grid.x_len);
+    let ys = min_y.max(0) as usize .. (max_y as usize + 1).clamp(0, grid.y_len);
     Some([xs, ys])
 }
