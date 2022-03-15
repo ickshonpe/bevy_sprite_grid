@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 keywords = ["bevy", "tilemap", "graphics", "2d", "sprites"]
 categories = ["game-development"]
-repository = "https:://github.com/ickshonpe/bevy_sprite_grid"
+repository = "https://github.com/ickshonpe/bevy_sprite_grid"
 description = "draws sprites in a grid"
 
 [dependencies.bevy]
