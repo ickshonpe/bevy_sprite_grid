@@ -7,18 +7,18 @@ fn spawn_tile_map(
 ) {
     let cell_size = vec2(32.0, 32.0);
     let sprite_grid = 
-        SpriteGrid::from_fn([5, 5], cell_size, |[x, y]| {
-            match (x + y) % 3 {
+        SpriteGrid::from_fn(
+            ([5, 5], cell_size, SpriteGridAlignment::center()), 
+            |[x, y]| match (x + y) % 3 {
                 0 => Color::RED,
                 1 => Color::MAROON,
                 _ => Color::WHITE,
             }
-        });
+        );
     commands.spawn_bundle(SpriteGridBundle {
         sprite_grid,
         ..Default::default()
-    })
-    .insert(SpriteGridAlignment::center());
+    });
 }
 
 fn main() {

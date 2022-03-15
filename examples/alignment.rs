@@ -13,7 +13,7 @@ fn spawn_tile_map(
         (SpriteGridAlignment::center(), Color::BLACK),
     ].into_iter().enumerate() {    
         let grid_size = vec2(32.0, 32.0);
-        let mut sprite_grid = SpriteGrid::empty([5, 5], grid_size);
+        let mut sprite_grid = SpriteGrid::empty(([5, 5], grid_size, alignment));
         for i in 0..5 {
             for j in 0..5 {
                 let cell_color = if (i + j + z) % 2 == 0 {
@@ -28,8 +28,7 @@ fn spawn_tile_map(
             sprite_grid,
             transform: Transform::from_translation(z as f32 * Vec3::Z),
             ..Default::default()
-        })
-        .insert(alignment); 
+        });
     }
 }
 

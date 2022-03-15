@@ -20,19 +20,19 @@ fn spawn_tile_map(
         (SpriteGridAlignment::top_left(), Color::GREEN),
         (SpriteGridAlignment::top_right(), Color::BLUE),
     ] {    
-        let sprite_grid = SpriteGrid::from_fn([5, 5], cell_size, |[x, y]| {
-                if (x + y) % 2 == 0 {
+        let sprite_grid = SpriteGrid::from_fn(
+            ([5, 5], cell_size, alignment), 
+            |[x, y]| if (x + y) % 2 == 0 {
                     color
                 } else {
                     Color::NAVY
                 }
-            });
+        );
 
         let sprite_grid = commands.spawn_bundle(SpriteGridBundle {
             sprite_grid,
             ..Default::default()
         })
-        .insert(alignment)
         .id(); 
         commands.entity(center).add_child(sprite_grid);
     }

@@ -6,7 +6,7 @@ fn spawn_grid(
     mut commands: Commands,
 ) {
     let cell_size = vec2(100.0, 100.0);
-    let mut sprite_grid = SpriteGrid::empty([2, 2], cell_size);
+    let mut sprite_grid = SpriteGrid::empty(([2, 2], cell_size));
     sprite_grid[[0, 0]] = SpriteCell::color(Color::WHITE);    
     sprite_grid[[1, 0]] = SpriteCell::color(Color::RED);
     sprite_grid[[0, 1]] = SpriteCell::color(Color::GREEN);

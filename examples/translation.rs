@@ -11,7 +11,7 @@ fn spawn_tile_map(
          Color::BLUE,
     ].into_iter().enumerate() {    
         let cell_size = Vec2::splat(32.0);
-        let mut sprite_grid = SpriteGrid::empty([5, 5], cell_size);
+        let mut sprite_grid = SpriteGrid::empty(([5, 5], cell_size, SpriteGridAlignment::center()));
         for i in 0..5 {
             for j in 0..5 {
                 let cell_color = if (i + j) % 2 == 0 {
@@ -27,9 +27,7 @@ fn spawn_tile_map(
             transform: Transform::from_translation(translation),
             sprite_grid,
             ..Default::default()
-        })
-        .insert(SpriteGridAlignment::center())
-        ; 
+        }); 
     }
 }
 

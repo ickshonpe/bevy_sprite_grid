@@ -15,14 +15,15 @@ fn spawn_grid(
         Vec3::Y,
         -Vec3::Y,
     ] {
-        let sprite_grid = SpriteGrid::from_fn([2, 2], cell_size, |[x, y]|
-            CellSprite {
+        let sprite_grid = SpriteGrid::from_fn(
+            ([2, 2], cell_size, SpriteGridAlignment::top_left()),
+            |[x, y]| CellSprite {
                 image_handle: assets.load("sprite.png"),
                 color: if (x + y) % 2 == 0 {
-                    Color::RED
-                } else {
-                    Color::WHITE
-                },
+                        Color::RED
+                    } else {
+                        Color::WHITE
+                    },
                 flip_x: false,
                 flip_y: (x + y) % 2 == 0,
                 custom_size: Some(cell_size),
@@ -32,8 +33,7 @@ fn spawn_grid(
             sprite_grid,
             transform: Transform::from_translation(3.0 * s * t),
             ..Default::default()
-        })
-        .insert(SpriteGridAlignment::top_left());
+        });
     }
 
     commands.spawn_bundle(SpriteBundle {

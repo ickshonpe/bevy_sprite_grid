@@ -2,11 +2,7 @@
 
 Draws sprites in a grid.
 
-Extremely basic tile map crate.
-
-You probably want to use [bevy_ecs_tilemap](https://github.com/StarArawn/bevy_ecs_tilemap) which is well supported, has great performance, and a legion of features.
-
-The only positive thing to be said about this crate is that is really, really simple.
+Extremely basic crate.
 
 It has one plugin, with one system. A SpriteGrid is a single entity with a SpriteGrid component and, like most Bevy renderables, Transform, GlobalTransform, and Visibility components.
 
@@ -17,11 +13,11 @@ It supports regular Bevy sprites, sprites from a TextureAtlas, or a mix of them,
 Spawning a SpriteGridBundle is similar to spawning an ordinary Bevy SpriteBundle. 
 Transformations applied to the SpriteGrid entity should correctly propagate to its sprites.
 
-No proper documentation yet, but there are quite a lot of examples in the /examples dir. It is an incredibly simple crate.
+No proper documentation, but there are quite a lot of examples in the /examples dir. 
 
-Performance should be fine, and more than enough for most practical purposes. It's not optimised though, and there are lots of ways to make it quite a bit more efficient.
+Performance should be fine, and more than enough for most practical purposes. It's not optimised at all except for culling of off screen sprites. Grids with even tens of millions of sprites are fine, as long as most of them are out of view.
 
-
+If you are doing a tile based 2D game you almost certainly want to use [bevy_ecs_tilemap](https://github.com/StarArawn/bevy_ecs_tilemap) instead, which is well supported, has great performance, and lots of features.
 
 
 

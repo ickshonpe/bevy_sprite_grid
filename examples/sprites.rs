@@ -21,8 +21,9 @@ fn spawn_tile_map(
         (SpriteGridAlignment::top_left(), Color::GREEN),
         (SpriteGridAlignment::top_right(), Color::BLUE),
     ] {    
-        let sprite_grid = SpriteGrid::from_fn([5, 5], cell_size, |[x, y]|
-            CellSprite {
+        let sprite_grid = SpriteGrid::from_fn(
+            ([5, 5], cell_size, alignment),
+            |[x, y]| CellSprite {
                 image_handle: asset_server.load("sprite.png"),
                 color: if (x + y) % 2 == 0 {
                     color
@@ -38,7 +39,6 @@ fn spawn_tile_map(
             sprite_grid,
             ..Default::default()
         })
-        .insert(alignment)
         .id(); 
         commands.entity(center).add_child(sprite_grid);
     }

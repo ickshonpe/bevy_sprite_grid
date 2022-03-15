@@ -16,14 +16,13 @@ fn spawn_grid(
     let mut translation = Vec3::ZERO + 100.0 * Vec3::Z;
     for color in [Color::WHITE, Color::RED] {
         let cell_size = Vec2::splat(s);
-        let mut sprite_grid = SpriteGrid::empty([1, 1], cell_size);
+        let mut sprite_grid = SpriteGrid::empty(([1, 1], cell_size, SpriteGridAlignment::top_right()));
         sprite_grid[[0, 0]] = SpriteCell::color(color);     
         commands.spawn_bundle(SpriteGridBundle {
             transform: Transform::from_translation(translation),
             sprite_grid,
             ..Default::default()
-        })
-        .insert(SpriteGridAlignment::top_right());
+        });
         translation += s * Vec3::X;
     }
 }
