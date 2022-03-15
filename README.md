@@ -1,8 +1,8 @@
 # bevy sprite grid
 
-Extremely basic crate for drawing sprites in a grid.
+Extremely basic crate that draws sprites in a grid.
 
-It has one plugin, with one system. A SpriteGrid is a single entity with a SpriteGrid component and, like most Bevy renderables, Transform, GlobalTransform, and Visibility components.
+SpriteGridPlugin has only one system. A SpriteGrid is a single entity with a SpriteGrid component and, like most Bevy renderables, Transform, GlobalTransform, and Visibility components.
 
 Drawing is done by the built-in Bevy sprite renderer. No intermediate sprite entities are created.
 
