@@ -1,5 +1,4 @@
 use std::ops::Mul;
-use bevy::asset::HandleId;
 use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::render::RenderApp;
@@ -16,7 +15,7 @@ use copyless::VecHelper;
 use crate::prelude::*;
 
 
-fn extract_tiles(
+fn extract_grid_sprites(
     active_cameras: Res<ActiveCameras>,
     cameras: Query<(&OrthographicProjection, &GlobalTransform)>,
     mut render_world: ResMut<RenderWorld>,
@@ -125,7 +124,7 @@ impl Plugin for RenderSpriteGridPlugin {
             render_app
             .add_system_to_stage(
                 RenderStage::Extract,
-                extract_tiles
+                extract_grid_sprites
                 .label(SpriteGridRenderSystem::ExtractTiles)
                 .after(SpriteSystem::ExtractSprites)
             );
