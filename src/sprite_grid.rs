@@ -3,6 +3,7 @@ use std::ops::IndexMut;
 use std::ops::Range;
 use bevy::math::vec2;
 use bevy::prelude::*;
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub enum SpriteGridCulling {
@@ -52,91 +53,6 @@ impl Default for SpriteGridAlignment {
     }
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct CellSprite {
-    pub image_handle: Handle<Image>,
-    pub color: Color,
-    pub flip_x: bool,
-    pub flip_y: bool,
-    pub custom_size: Option<Vec2>,
-}
-
-impl CellSprite {
-    fn new(image_handle: Handle<Image>) -> Self {
-        Self {
-            image_handle,
-            ..Default::default()
-        }
-    }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct CellAtlasSprite {
-    pub atlas_handle: Handle<TextureAtlas>,
-    pub atlas_index: usize,
-    pub color: Color,
-    pub flip_x: bool,
-    pub flip_y: bool,
-    pub custom_size: Option<Vec2>,
-}
-
-impl CellAtlasSprite {
-    fn new(atlas_handle: Handle<TextureAtlas>, atlas_index: usize) -> Self {
-        Self {
-            atlas_handle,
-            atlas_index,
-            ..Default::default()
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-#[derive(Component)]
-pub enum SpriteCell {
-    Sprite(CellSprite),
-    AtlasSprite(CellAtlasSprite),
-    Color(Color),
-    Empty
-}
-
-impl From<CellSprite> for SpriteCell {
-    fn from(tile_sprite: CellSprite) -> Self {
-        SpriteCell::Sprite(tile_sprite)
-    }
-}
-
-impl From<CellAtlasSprite> for SpriteCell {
-    fn from(tile_atlas_sprite: CellAtlasSprite) -> Self {
-        SpriteCell::AtlasSprite(tile_atlas_sprite)
-    }
-}
-
-impl From<Color> for SpriteCell {
-    fn from(color: Color) -> Self {
-        SpriteCell::Color(color)
-    }
-}
-
-impl Default for SpriteCell {
-    fn default() -> Self {
-        SpriteCell::Empty
-    }
-}
-
-impl SpriteCell {
-    pub fn sprite(image_handle: Handle<Image>) -> Self {
-        Self::Sprite(CellSprite::new(image_handle))
-    }
-
-    pub fn atlas_sprite(atlas_handle: Handle<TextureAtlas>, atlas_index: usize) -> Self {        
-        Self::AtlasSprite(CellAtlasSprite::new(atlas_handle, atlas_index))
-    }
-
-    pub fn color(color: Color) -> Self {
-        Self::Color(color)
-    }
-}
-
 pub struct SpriteGridGeometry {
     grid_size: [usize; 2],
     cell_size: Vec2,
@@ -165,7 +81,7 @@ impl From<([usize; 2], Vec2, SpriteGridAlignment)> for SpriteGridGeometry {
 
 #[derive(Clone, Default, Component)]
 pub struct SpriteGrid {
-    pub sprite_cells: Vec<Vec<SpriteCell>>,
+    pub sprite_cells: Vec<Vec<Option<SpriteCell>>>,
     pub cell_transforms: Vec<Vec<Transform>>,
     pub alignment: SpriteGridAlignment,
     pub x_len: usize,
@@ -178,9 +94,9 @@ impl SpriteGrid {
     pub fn empty(geometry: impl Into<SpriteGridGeometry>) -> Self {
         let geometry = geometry.into();
         let [x_len, y_len] = geometry.grid_size;
-        let cells: Vec<Vec<SpriteCell>> =
+        let cells: Vec<Vec<Option<SpriteCell>>> =
             (0..x_len)
-            .map(|_| vec![SpriteCell::Empty; y_len])
+            .map(|_| vec![None; y_len])
             .collect();
         let cell_transforms = 
             (0..x_len)
@@ -201,9 +117,9 @@ impl SpriteGrid {
         let geometry = geometry.into();
         let [x_len, y_len] = geometry.grid_size;
         let cell = sprite_cell.into();
-        let cells: Vec<Vec<SpriteCell>> =
+        let cells: Vec<Vec<Option<SpriteCell>>> =
             (0..x_len)
-            .map(|_| vec![cell.clone(); y_len])
+            .map(|_| vec![Some(cell.clone()); y_len])
             .collect();
         let cell_transforms = 
             (0..x_len)
@@ -220,16 +136,16 @@ impl SpriteGrid {
             }
     }
 
-    pub fn from_fn<I>(geometry: impl Into<SpriteGridGeometry>, mut c: impl FnMut([usize; 2]) -> I) -> Self 
+    pub fn from_fn<I>(geometry: impl Into<SpriteGridGeometry>, mut c: impl FnMut([usize; 2]) -> Option<I>) -> Self 
     where 
         I: Into<SpriteCell>
     {
         let geometry = geometry.into();
         let [x_len, y_len] = geometry.grid_size;
-        let cells: Vec<Vec<SpriteCell>> =
+        let cells: Vec<Vec<Option<SpriteCell>>> =
             (0..x_len)
             .map(|x| 
-                (0..y_len).map(|y| c([x, y]).into()).collect()
+                (0..y_len).map(|y| c([x, y]).map(|s| s.into())).collect()
             )
             .collect();
         let cell_transforms = 
@@ -252,16 +168,22 @@ impl SpriteGrid {
     }
     
     pub fn set(&mut self, [x, y]: [usize; 2], cell: impl Into<SpriteCell>) {
-        self.sprite_cells[x][y] = cell.into();
+        self.sprite_cells[x][y] = Some(cell.into());
     }
 
+    /// iterate through the non-empty sprite cells in the sub-grid
+    /// defined by the given ranges
     pub fn iter(&self, xs: Range<usize>, ys: Range<usize>) -> impl Iterator<Item=([usize; 2], &SpriteCell)> {
-        xs.flat_map(move |x| ys.clone().map(move |y| ([x, y], &self[[x, y]])))
+        xs.flat_map(move |x| 
+            ys.clone().filter_map(move |y| 
+                self[[x, y]].as_ref().map(|s| ([x, y], s))
+            )
+        )       
     }
 }
 
 impl Index<[usize; 2]> for SpriteGrid {
-    type Output=SpriteCell;
+    type Output=Option<SpriteCell>;
 
     fn index(&self, [x, y]: [usize; 2]) -> &Self::Output {
         &self.sprite_cells[x][y]

@@ -17,8 +17,8 @@ fn spawn_grid(
     ] {
         let sprite_grid = SpriteGrid::from_fn(
             ([2, 2], cell_size, SpriteGridAlignment::top_left()),
-            |[x, y]| CellSprite {
-                image_handle: assets.load("sprite.png"),
+            |[x, y]| TexturedCell {
+                texture: assets.load("sprite.png").into(),
                 color: if (x + y) % 2 == 0 {
                         Color::RED
                     } else {
@@ -27,7 +27,7 @@ fn spawn_grid(
                 flip_x: false,
                 flip_y: (x + y) % 2 == 0,
                 custom_size: Some(cell_size),
-            }    
+            }.into()    
         );
         commands.spawn_bundle(SpriteGridBundle {
             sprite_grid,

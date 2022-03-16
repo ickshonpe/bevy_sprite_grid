@@ -26,7 +26,7 @@ fn spawn_tile_map(
                     color
                 } else {
                     Color::NAVY
-                }
+                }.into()
         );
 
         let sprite_grid = commands.spawn_bundle(SpriteGridBundle {

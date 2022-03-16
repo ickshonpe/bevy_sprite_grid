@@ -13,7 +13,7 @@ fn spawn_tile_map(
                 0 => Color::RED,
                 1 => Color::MAROON,
                 _ => Color::WHITE,
-            }
+            }.into()
         );
     commands.spawn_bundle(SpriteGridBundle {
         sprite_grid,

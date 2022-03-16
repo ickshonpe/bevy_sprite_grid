@@ -1,4 +1,5 @@
 use std::ops::Mul;
+use bevy::asset::HandleId;
 use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::render::RenderApp;
@@ -13,6 +14,7 @@ use bevy::sprite::ExtractedSprites;
 use bevy::sprite::SpriteSystem;
 use copyless::VecHelper;
 use crate::prelude::*;
+
 
 fn extract_tiles(
     active_cameras: Res<ActiveCameras>,
@@ -65,40 +67,37 @@ fn extract_tiles(
         };
         
         for ([x, y], sprite_cell) in sprite_grid.iter(xs, ys) {
-                let grid_pos = (vec2(x as f32, y as f32) + 0.5 * Vec2::ONE) * sprite_grid.cell_size;                 
-                let cell_transform = Transform {
-                    translation: grid_pos.extend(0.0),
-                    ..Default::default()
-                };
-                let transform = grid_transform.mul(cell_transform);
-                match *sprite_cell {
-                    SpriteCell::Sprite(CellSprite { ref image_handle, color, flip_x, flip_y, custom_size }) => {
-                        extracted_sprites.sprites.alloc().init(ExtractedSprite {
-                            color,
+            let grid_pos = (vec2(x as f32, y as f32) + 0.5 * Vec2::ONE) * sprite_grid.cell_size;                 
+            let cell_transform = Transform {
+                translation: grid_pos.extend(0.0),
+                ..Default::default()
+            };
+            let transform = grid_transform.mul(cell_transform);
+            let extracted_sprite =
+                match sprite_cell {
+                    SpriteCell::Texture(cell) => {
+                        let (image_handle_id, rect) = match &cell.texture {
+                            TextureSource::Image { handle } => (handle.id, None),
+                            TextureSource::Atlas { handle, index } => 
+                                if let Some(texture_atlas) = texture_atlases.get(handle) {
+                                    (texture_atlas.texture.id, Some(texture_atlas.textures[*index].into()))
+                                } else {
+                                    continue
+                                }
+                            ,
+                        };
+                        ExtractedSprite {
+                            color: cell.color,
                             transform,
-                            rect: None,
-                            custom_size,
-                            flip_x,
-                            flip_y,
-                            image_handle_id: image_handle.id,
-                        });
-                    }
-                    SpriteCell::AtlasSprite(CellAtlasSprite { ref atlas_handle, atlas_index, color, flip_x, flip_y, custom_size }) => {
-                        if let Some(texture_atlas) = texture_atlases.get(atlas_handle) {
-                            let rect = texture_atlas.textures[atlas_index].into();
-                            extracted_sprites.sprites.alloc().init(ExtractedSprite {
-                                color,
-                                transform,
-                                rect,
-                                custom_size,
-                                flip_x,
-                                flip_y,
-                                image_handle_id: texture_atlas.texture.id,
-                            });
-                        } 
+                            rect,
+                            custom_size: cell.custom_size,
+                            flip_x: cell.flip_x,
+                            flip_y: cell.flip_y,
+                            image_handle_id,
+                        }
                     },
-                    SpriteCell::Color(color) => {
-                        extracted_sprites.sprites.alloc().init(ExtractedSprite {
+                    &SpriteCell::Color(color) => 
+                        ExtractedSprite {
                             color,
                             transform,
                             rect: None,
@@ -106,11 +105,9 @@ fn extract_tiles(
                             flip_x: false,
                             flip_y: false,
                             image_handle_id: DEFAULT_IMAGE_HANDLE.id,
-                        });
-                    },
-                    _ => ()
-                
-            }
+                        },
+                };
+            extracted_sprites.sprites.alloc().init(extracted_sprite);
         }
     }
 }

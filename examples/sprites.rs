@@ -23,8 +23,8 @@ fn spawn_tile_map(
     ] {    
         let sprite_grid = SpriteGrid::from_fn(
             ([5, 5], cell_size, alignment),
-            |[x, y]| CellSprite {
-                image_handle: asset_server.load("sprite.png"),
+            |[x, y]| TexturedCell {
+                texture: asset_server.load("sprite.png").into(),
                 color: if (x + y) % 2 == 0 {
                     color
                 } else {
@@ -33,7 +33,7 @@ fn spawn_tile_map(
                 flip_x: false,
                 flip_y: (x + y) % 2 == 0,
                 custom_size: Some(cell_size),
-            }    
+            }.into()    
         );
         let sprite_grid = commands.spawn_bundle(SpriteGridBundle {
             sprite_grid,

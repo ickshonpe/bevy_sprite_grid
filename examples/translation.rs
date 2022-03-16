@@ -19,7 +19,7 @@ fn spawn_tile_map(
                 } else {
                     Color::NAVY
                 };
-                sprite_grid[[i, j]] = SpriteCell::color(cell_color);
+                sprite_grid[[i, j]] = SpriteCell::color(cell_color).into();
             }
         }
         let translation = (i as f32 - 1.5) * sprite_grid.grid_size().x * Vec3::X;

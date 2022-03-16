@@ -48,9 +48,9 @@ fn update_camera_indicators(
 fn move_camera(
     time: Res<Time>,
     keyboard: Res<Input<KeyCode>>,
-    mut query: Query<&mut Transform, With<MyCamera>>
+    mut query: Query<(&mut Transform, &GlobalTransform), With<MyCamera>>
 ) {
-    query.for_each_mut(|mut transform| {
+    query.for_each_mut(|(mut transform, global_transform)| {
         let mut m = Vec3::ZERO;
         if keyboard.pressed(KeyCode::A) {
             m -= Vec3::X
@@ -65,7 +65,7 @@ fn move_camera(
             m += Vec3::Y
         }
         if 0.0 < m.abs().length() - 0.01 {
-            transform.translation += time.delta_seconds() * 100.0 * m.normalize_or_zero();
+            transform.translation += time.delta_seconds() * 100.0 * global_transform.rotation.mul_vec3(m).normalize_or_zero();
         }
 
         let rotation_speed = 1.0;
@@ -121,7 +121,8 @@ fn draw_grid(
     commands.spawn_bundle(SpriteGridBundle {
         sprite_grid: SpriteGrid::from_fn(
             ([1000, 1000], vec2(40.0, 40.0), SpriteGridAlignment::center()), 
-            |[x, y]| if (x + y) % 2 == 0 { Color::BLACK } else { Color::WHITE }),
+            |[x, y]| if (x + y) % 2 == 0 { Color::BLACK } else { Color::WHITE }.into()
+        ),
         transform: Transform {
             ..Default::default()
         },
@@ -138,7 +139,7 @@ fn select_cell(
         grids.for_each_mut(|(transform, mut sprite_grid)| {
             let _ = pick_cell_unbounded(&sprite_grid, transform, picked);
             if let Some(cell) = pick_cell(&sprite_grid, transform, picked) {
-                sprite_grid[cell] = Color::GREEN.into();
+                sprite_grid[cell] = Some(Color::GREEN.into());
             } 
         });
     }
@@ -155,13 +156,15 @@ fn select_rect(
             if let Some([xs, ys]) = rect {
                 for x in 0..grid.x_len {
                     for y in 0..grid.y_len {
-                        grid[[x, y]] = 
-                            if xs.contains(&x) && ys.contains(&y) {
-                                [Color::CYAN, Color::AQUAMARINE]
-                            } else {
-                                [Color::ORANGE, Color::ORANGE_RED]
-                            }
-                            [(x + y) % 2].into();
+                        grid[[x, y]] =
+                            Some(
+                                if xs.contains(&x) && ys.contains(&y) {
+                                    [Color::CYAN, Color::AQUAMARINE]
+                                } else {
+                                    [Color::ORANGE, Color::ORANGE_RED]
+                                }
+                                [(x + y) % 2].into()
+                            )
                     }
                 }
             }

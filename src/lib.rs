@@ -1,12 +1,15 @@
 pub mod bundles;
 pub mod render;
-pub mod sprite_grid;
 pub mod picking;
+pub mod sprite_cell;
+pub mod sprite_grid;
+
 pub mod prelude {
     pub use crate::bundles::*;
+    pub use crate::picking::*;
+    pub use crate::sprite_cell::*;
     pub use crate::sprite_grid::*;
     pub use crate::SpriteGridPlugin;
-    pub use crate::picking::*;
 }
 
 use bevy::prelude::*;
