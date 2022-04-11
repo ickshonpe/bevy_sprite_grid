@@ -24,12 +24,12 @@ impl SpriteGridRect {
     pub fn intersect_with(self, other: Self) -> Option<Self> {
         let left = max(self.left, other.left);
         let right = min(self.right, other.right);
-        if right < left {
+        if right <= left {
             return None;
         }
         let bottom = max(self.bottom, other.bottom);
         let top = min(self.top, other.top);
-        if top < bottom {
+        if top <= bottom {
             None
         } else {
             Some(Self {
