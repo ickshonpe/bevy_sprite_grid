@@ -153,12 +153,12 @@ fn select_rect(
         let half_size = 0.5 * vec2(projection.right, projection.top);
         grids.for_each_mut(|(transform, mut grid)| {
             let rect = pick_rect(&grid, transform, half_size, camera_transform);
-            if let Some([xs, ys]) = rect {
+            if let Some(rect) = rect {
                 for x in 0..grid.x_len {
                     for y in 0..grid.y_len {
                         grid[[x, y]] =
                             Some(
-                                if xs.contains(&x) && ys.contains(&y) {
+                                if rect.xs().contains(&x) && rect.ys().contains(&y) {
                                     [Color::CYAN, Color::AQUAMARINE]
                                 } else {
                                     [Color::ORANGE, Color::ORANGE_RED]

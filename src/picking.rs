@@ -50,7 +50,7 @@ pub fn pick_rect(
     transform: &GlobalTransform,
     rect_half_size: Vec2,
     rect_transform: &GlobalTransform,
-) -> Option<[Range<usize>; 2]> {
+) -> Option<SpriteGridRect> {
     if grid.x_len == 0 || grid.y_len == 0 {
         return None;
     }
@@ -81,7 +81,10 @@ pub fn pick_rect(
     if max_y < 0 { return None }
     if grid.x_len as i64 <= min_x { return None }
     if grid.y_len as i64 <= min_y { return None }
-    let xs = min_x.max(0) as usize .. (max_x as usize + 1).clamp(0, grid.x_len);
-    let ys = min_y.max(0) as usize .. (max_y as usize + 1).clamp(0, grid.y_len);
-    Some([xs, ys])
+    Some(SpriteGridRect {
+        left: min_x.max(0) as usize,
+        right: (max_x as usize + 1).clamp(0, grid.x_len),
+        bottom: min_y.max(0) as usize,
+        top: (max_y as usize + 1).clamp(0, grid.y_len)
+    })
 }

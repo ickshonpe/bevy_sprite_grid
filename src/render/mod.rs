@@ -24,6 +24,7 @@ fn extract_grid_sprites(
         &SpriteGrid,
         &GlobalTransform,
         &Visibility,
+        Option<&SpriteGridView>,
     )>,
 ) {
     let mut extracted_sprites = render_world.get_resource_mut::<ExtractedSprites>().unwrap();
@@ -39,7 +40,7 @@ fn extract_grid_sprites(
         };
     let culling_rect_half_size = projection.right * Vec2::X + projection.top * Vec2::Y;
 
-    for (sprite_grid, global_transform, visibility) in sprite_grid_query.iter() {
+    for (sprite_grid, global_transform, visibility, view) in sprite_grid_query.iter() {
         if !visibility.is_visible { continue }
         if sprite_grid.x_len == 0 || sprite_grid.y_len == 0 { continue }
         let alignment_translation =
@@ -50,22 +51,35 @@ fn extract_grid_sprites(
                 translation: alignment_translation.extend(0.0),
                 ..Default::default()
             });
-        let [xs, ys] = if let SpriteGridCulling::Enabled { margin } = sprite_grid.culling {
+        let view_rect = if let SpriteGridCulling::Enabled { margin } = sprite_grid.culling {
             if let Some(ranges) = pick_rect(
                 sprite_grid,
                 global_transform,
                 culling_rect_half_size + margin,
                 camera_transform,
             ) {
-                ranges
+                if let Some(view) = view { 
+                    let ranges = ranges.intersect_with(view.0);
+                    if ranges.is_none() { continue }
+                    ranges.unwrap()
+                } else {
+                    ranges
+                }
             } else {
                 continue;
             }
+        } else if let Some(view) = view {
+            view.0
         } else {
-            [0 .. sprite_grid.x_len, 0 .. sprite_grid.y_len]
+            SpriteGridRect {
+                left: 0,
+                right: sprite_grid.x_len,
+                bottom: 0,
+                top: sprite_grid.y_len,
+            }
         };
-        
-        for ([x, y], sprite_cell) in sprite_grid.iter(xs, ys) {
+
+        for ([x, y], sprite_cell) in sprite_grid.iter(view_rect.xs(), view_rect.ys()) {
             let grid_pos = (vec2(x as f32, y as f32) + 0.5 * Vec2::ONE) * sprite_grid.cell_size;                 
             let cell_transform = Transform {
                 translation: grid_pos.extend(0.0),
