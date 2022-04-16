@@ -1,7 +1,5 @@
 use bevy::math::vec2;
-use bevy::render::camera::ActiveCamera;
-use bevy::render::camera::ActiveCameras;
-use bevy::render::camera::CameraPlugin;
+use bevy::render::camera::Camera2d;
 use bevy_sprite_grid::prelude::*;
 use bevy::prelude::*;
 
@@ -9,19 +7,14 @@ use bevy::prelude::*;
 struct MyCamera;
 
 fn update_camera_indicators(
-    active_cameras: Res<ActiveCameras>,
-    projections: Query<(&mut GlobalTransform, &OrthographicProjection)>,
+    cameras: Query<(&OrthographicProjection, &mut GlobalTransform), With<Camera2d>>,
     mut sprite: Query<(&mut Sprite, &mut Transform), With<CameraNode>>,
     mut corner: Query<&mut Transform, (With<CameraCornerMarker>, Without<CameraNode>, Without<CameraCenterMarker>)>,
     mut center: Query<&mut Transform, (With<CameraCenterMarker>, Without<CameraNode>, Without<CameraCornerMarker>)>
 ) {
-    let (camera_transform, projection) = 
-        if let Some(ActiveCamera { entity: Some(entity), .. }) = active_cameras.get(CameraPlugin::CAMERA_2D) {
-            if let Ok(projection) = projections.get(*entity) {
-                projection
-            } else {
-                return;
-            }
+    let (projection, camera_transform) = 
+        if let Some((projection, camera_transform)) = cameras.iter().next() {
+            (projection, camera_transform)
         } else {
             return;
         };

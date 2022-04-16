@@ -54,7 +54,7 @@ fn rotate(
 fn main() {
     App::new()
     .insert_resource(WindowDescriptor {
-        vsync: false,
+        present_mode: bevy::window::PresentMode::Immediate,
         mode: bevy::window::WindowMode::Fullscreen,
         ..Default::default()
     })

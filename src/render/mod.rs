@@ -5,8 +5,7 @@ use bevy::render::RenderApp;
 use bevy::render::RenderStage;
 use bevy::render::RenderWorld;
 use bevy::render::camera::ActiveCamera;
-use bevy::render::camera::ActiveCameras;
-use bevy::render::camera::CameraPlugin;
+use bevy::render::camera::Camera2d;
 use bevy::render::texture::DEFAULT_IMAGE_HANDLE;
 use bevy::sprite::ExtractedSprite;
 use bevy::sprite::ExtractedSprites;
@@ -16,8 +15,8 @@ use crate::prelude::*;
 
 
 fn extract_grid_sprites(
-    active_cameras: Res<ActiveCameras>,
-    cameras: Query<(&OrthographicProjection, &GlobalTransform)>,
+    active_cameras: Res<ActiveCamera<Camera2d>>,
+    cameras: Query<(&OrthographicProjection, &GlobalTransform), With<Camera2d>>,
     mut render_world: ResMut<RenderWorld>,
     texture_atlases: Res<Assets<TextureAtlas>>,
     sprite_grid_query: Query<(
@@ -29,12 +28,8 @@ fn extract_grid_sprites(
 ) {
     let mut extracted_sprites = render_world.get_resource_mut::<ExtractedSprites>().unwrap();
     let (projection, camera_transform) = 
-        if let Some(ActiveCamera { entity: Some(entity), .. }) = active_cameras.get(CameraPlugin::CAMERA_2D) {
-            if let Ok((projection, camera_transform)) = cameras.get(*entity) {
-                (projection, camera_transform)
-            } else {
-                return;
-            }
+        if let Some((projection, camera_transform)) = cameras.iter().next() {
+            (projection, camera_transform)
         } else {
             return;
         };
@@ -107,6 +102,7 @@ fn extract_grid_sprites(
                             flip_x: cell.flip_x,
                             flip_y: cell.flip_y,
                             image_handle_id,
+                            anchor: Vec2::ZERO
                         }
                     },
                     &SpriteCell::Color(color) => 
@@ -118,6 +114,7 @@ fn extract_grid_sprites(
                             flip_x: false,
                             flip_y: false,
                             image_handle_id: DEFAULT_IMAGE_HANDLE.id,
+                            anchor: Vec2::ZERO
                         },
                 };
             extracted_sprites.sprites.alloc().init(extracted_sprite);
