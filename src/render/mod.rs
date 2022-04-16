@@ -4,7 +4,6 @@ use bevy::prelude::*;
 use bevy::render::RenderApp;
 use bevy::render::RenderStage;
 use bevy::render::RenderWorld;
-use bevy::render::camera::ActiveCamera;
 use bevy::render::camera::Camera2d;
 use bevy::render::texture::DEFAULT_IMAGE_HANDLE;
 use bevy::sprite::ExtractedSprite;
@@ -15,7 +14,6 @@ use crate::prelude::*;
 
 
 fn extract_grid_sprites(
-    active_cameras: Res<ActiveCamera<Camera2d>>,
     cameras: Query<(&OrthographicProjection, &GlobalTransform), With<Camera2d>>,
     mut render_world: ResMut<RenderWorld>,
     texture_atlases: Res<Assets<TextureAtlas>>,
