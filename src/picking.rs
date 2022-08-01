@@ -1,24 +1,25 @@
-use std::ops::Mul;
+use crate::prelude::*;
 use bevy::math::vec2;
 use bevy::prelude::*;
-use crate::prelude::*;
+use std::ops::Mul;
 
 pub fn pick_cell(
     grid: &SpriteGrid,
     transform: &GlobalTransform,
     point: Vec2,
-) -> Option<[usize; 2]>{
+) -> Option<[usize; 2]> {
     let alignment_translation = -grid.alignment.0 * grid.grid_size();
-    let grid_transform =
-        transform.mul(
-        Transform {
-            translation: alignment_translation.extend(0.0),
-            ..Default::default()
-        });
+    let grid_transform = transform.mul(Transform {
+        translation: alignment_translation.extend(0.0),
+        ..Default::default()
+    });
     let m = grid_transform.compute_matrix();
     let grid_point = m.inverse().transform_point3(point.extend(0.0)).truncate();
-    if 0.0 <= grid_point.x && grid_point.x < grid.grid_size().x
-    && 0.0 <= grid_point.y && grid_point.y < grid.grid_size().y {
+    if 0.0 <= grid_point.x
+        && grid_point.x < grid.grid_size().x
+        && 0.0 <= grid_point.y
+        && grid_point.y < grid.grid_size().y
+    {
         let cell = grid_point / grid.cell_size;
         [cell.x as usize, cell.y as usize].into()
     } else {
@@ -30,14 +31,12 @@ pub fn pick_cell_unbounded(
     grid: &SpriteGrid,
     transform: &GlobalTransform,
     point: Vec2,
-) -> [i64; 2]{
+) -> [i64; 2] {
     let alignment_translation = -grid.alignment.0 * grid.grid_size();
-    let grid_transform =
-        transform.mul(
-        Transform {
-            translation: alignment_translation.extend(0.0),
-            ..Default::default()
-        });
+    let grid_transform = transform.mul(Transform {
+        translation: alignment_translation.extend(0.0),
+        ..Default::default()
+    });
     let m = grid_transform.compute_matrix();
     let grid_point = m.inverse().transform_point3(point.extend(0.0)).truncate();
     let cell = grid_point / grid.cell_size;
@@ -59,31 +58,43 @@ pub fn pick_rect(
         rect_half_size,
         rect_half_size * vec2(1.0, -1.0),
     ]
-    .map(|pos| {
-        rect_transform.mul_vec3(pos.extend(0.0))
-    })
-    .map(|pos| {
-        pick_cell_unbounded(grid, transform, pos.truncate())
-    });
+    .map(|pos| rect_transform.mul_vec3(pos.extend(0.0)))
+    .map(|pos| pick_cell_unbounded(grid, transform, pos.truncate()));
     let mut min_x = i64::MAX;
     let mut max_x = i64::MIN;
     let mut min_y = i64::MAX;
     let mut max_y = i64::MIN;
     for [x, y] in cell_indices {
-        if x < min_x { min_x = x };
-        if max_x < x { max_x = x };
-        if y < min_y { min_y = y };
-        if max_y < y { max_y = y };
+        if x < min_x {
+            min_x = x
+        };
+        if max_x < x {
+            max_x = x
+        };
+        if y < min_y {
+            min_y = y
+        };
+        if max_y < y {
+            max_y = y
+        };
     }
-    
-    if max_x < 0 { return None }
-    if max_y < 0 { return None }
-    if grid.x_len as i64 <= min_x { return None }
-    if grid.y_len as i64 <= min_y { return None }
+
+    if max_x < 0 {
+        return None;
+    }
+    if max_y < 0 {
+        return None;
+    }
+    if grid.x_len as i64 <= min_x {
+        return None;
+    }
+    if grid.y_len as i64 <= min_y {
+        return None;
+    }
     Some(SpriteGridRect {
         left: min_x.max(0) as usize,
         right: (max_x as usize + 1).clamp(0, grid.x_len),
         bottom: min_y.max(0) as usize,
-        top: (max_y as usize + 1).clamp(0, grid.y_len)
+        top: (max_y as usize + 1).clamp(0, grid.y_len),
     })
 }

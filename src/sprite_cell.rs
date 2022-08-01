@@ -2,13 +2,20 @@ use bevy::prelude::*;
 
 #[derive(Clone, Debug)]
 pub enum TextureSource {
-    Image { handle: Handle<Image> },
-    Atlas { handle: Handle<TextureAtlas>, index: usize },
+    Image {
+        handle: Handle<Image>,
+    },
+    Atlas {
+        handle: Handle<TextureAtlas>,
+        index: usize,
+    },
 }
 
 impl Default for TextureSource {
     fn default() -> Self {
-        Self::Image { handle: Default::default() }
+        Self::Image {
+            handle: Default::default(),
+        }
     }
 }
 
@@ -42,14 +49,16 @@ impl TexturedCell {
     }
 }
 
-#[derive(Clone, Debug)]
-#[derive(Component)]
+#[derive(Clone, Debug, Component)]
 pub enum SpriteCell {
     Texture(TexturedCell),
     Color(Color),
 }
 
-impl <T> From<T> for SpriteCell where T: Into<TextureSource> {
+impl<T> From<T> for SpriteCell
+where
+    T: Into<TextureSource>,
+{
     fn from(source: T) -> Self {
         Self::Texture(TexturedCell::new(source))
     }

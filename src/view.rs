@@ -14,11 +14,11 @@ pub struct SpriteGridRect {
 
 impl SpriteGridRect {
     pub fn xs(self) -> Range<usize> {
-        self.left .. self.right
+        self.left..self.right
     }
 
     pub fn ys(self) -> Range<usize> {
-        self.bottom .. self.top
+        self.bottom..self.top
     }
 
     pub fn intersect_with(self, other: Self) -> Option<Self> {
@@ -42,7 +42,5 @@ impl SpriteGridRect {
     }
 }
 
-
-#[derive(Copy, Clone)]
-#[derive(Component)]
+#[derive(Copy, Clone, Component)]
 pub struct SpriteGridView(pub SpriteGridRect);

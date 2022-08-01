@@ -1,27 +1,29 @@
+use crate::prelude::*;
+use bevy::math::vec2;
+use bevy::prelude::*;
 use std::ops::Index;
 use std::ops::IndexMut;
 use std::ops::Range;
-use bevy::math::vec2;
-use bevy::prelude::*;
-use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub enum SpriteGridCulling {
-    Enabled { margin: Vec2, },
+    Enabled { margin: Vec2 },
     Disabled,
 }
 
 impl Default for SpriteGridCulling {
     fn default() -> Self {
-        Self::Enabled { margin: Vec2::splat(16.0) }
+        Self::Enabled {
+            margin: Vec2::splat(16.0),
+        }
     }
 }
 
-/// Determines the alignment of the 
+/// Determines the alignment of the
 /// sprite grid in relation to it's global transform
 /// and it's point of rotation.
 /// By default the bottom left corner of the grid maps
-/// to the SpriteGrid's position 
+/// to the SpriteGrid's position
 #[derive(Copy, Clone, Debug)]
 pub struct SpriteGridAlignment(pub Vec2);
 
@@ -56,7 +58,7 @@ impl Default for SpriteGridAlignment {
 pub struct SpriteGridGeometry {
     grid_size: [usize; 2],
     cell_size: Vec2,
-    alignment: SpriteGridAlignment
+    alignment: SpriteGridAlignment,
 }
 
 impl From<([usize; 2], Vec2)> for SpriteGridGeometry {
@@ -64,7 +66,7 @@ impl From<([usize; 2], Vec2)> for SpriteGridGeometry {
         Self {
             grid_size,
             cell_size,
-            alignment: SpriteGridAlignment::default()
+            alignment: SpriteGridAlignment::default(),
         }
     }
 }
@@ -74,7 +76,7 @@ impl From<([usize; 2], Vec2, SpriteGridAlignment)> for SpriteGridGeometry {
         Self {
             grid_size,
             cell_size,
-            alignment
+            alignment,
         }
     }
 }
@@ -94,12 +96,8 @@ impl SpriteGrid {
     pub fn empty(geometry: impl Into<SpriteGridGeometry>) -> Self {
         let geometry = geometry.into();
         let [x_len, y_len] = geometry.grid_size;
-        let cells: Vec<Vec<Option<SpriteCell>>> =
-            (0..x_len)
-            .map(|_| vec![None; y_len])
-            .collect();
-        let cell_transforms = 
-            (0..x_len)
+        let cells: Vec<Vec<Option<SpriteCell>>> = (0..x_len).map(|_| vec![None; y_len]).collect();
+        let cell_transforms = (0..x_len)
             .map(|_| vec![Transform::default(); y_len])
             .collect();
         Self {
@@ -109,81 +107,90 @@ impl SpriteGrid {
             x_len,
             y_len,
             cell_size: geometry.cell_size,
-            culling: SpriteGridCulling::Enabled { margin: 1.5 * geometry.cell_size },
+            culling: SpriteGridCulling::Enabled {
+                margin: 1.5 * geometry.cell_size,
+            },
         }
     }
 
-    pub fn from_cell(geometry: impl Into<SpriteGridGeometry>, sprite_cell: impl Into<SpriteCell>) -> Self {
+    pub fn from_cell(
+        geometry: impl Into<SpriteGridGeometry>,
+        sprite_cell: impl Into<SpriteCell>,
+    ) -> Self {
         let geometry = geometry.into();
         let [x_len, y_len] = geometry.grid_size;
         let cell = sprite_cell.into();
-        let cells: Vec<Vec<Option<SpriteCell>>> =
-            (0..x_len)
+        let cells: Vec<Vec<Option<SpriteCell>>> = (0..x_len)
             .map(|_| vec![Some(cell.clone()); y_len])
             .collect();
-        let cell_transforms = 
-            (0..x_len)
+        let cell_transforms = (0..x_len)
             .map(|_| vec![Transform::default(); y_len])
             .collect();
-            Self {
-                sprite_cells: cells,
-                alignment: geometry.alignment,
-                cell_transforms,
-                x_len,
-                y_len,
-                cell_size: geometry.cell_size,
-                culling: SpriteGridCulling::Enabled { margin: 1.5 * geometry.cell_size },
-            }
+        Self {
+            sprite_cells: cells,
+            alignment: geometry.alignment,
+            cell_transforms,
+            x_len,
+            y_len,
+            cell_size: geometry.cell_size,
+            culling: SpriteGridCulling::Enabled {
+                margin: 1.5 * geometry.cell_size,
+            },
+        }
     }
 
-    pub fn from_fn<I>(geometry: impl Into<SpriteGridGeometry>, mut c: impl FnMut([usize; 2]) -> Option<I>) -> Self 
-    where 
-        I: Into<SpriteCell>
+    pub fn from_fn<I>(
+        geometry: impl Into<SpriteGridGeometry>,
+        mut c: impl FnMut([usize; 2]) -> Option<I>,
+    ) -> Self
+    where
+        I: Into<SpriteCell>,
     {
         let geometry = geometry.into();
         let [x_len, y_len] = geometry.grid_size;
-        let cells: Vec<Vec<Option<SpriteCell>>> =
-            (0..x_len)
-            .map(|x| 
-                (0..y_len).map(|y| c([x, y]).map(|s| s.into())).collect()
-            )
+        let cells: Vec<Vec<Option<SpriteCell>>> = (0..x_len)
+            .map(|x| (0..y_len).map(|y| c([x, y]).map(|s| s.into())).collect())
             .collect();
-        let cell_transforms = 
-            (0..x_len)
+        let cell_transforms = (0..x_len)
             .map(|_| vec![Transform::default(); y_len])
             .collect();
-            Self {
-                sprite_cells: cells,
-                alignment: geometry.alignment,
-                cell_transforms,
-                x_len,
-                y_len,
-                cell_size: geometry.cell_size,
-                culling: SpriteGridCulling::Enabled { margin: 1.5 * geometry.cell_size },
-            }
+        Self {
+            sprite_cells: cells,
+            alignment: geometry.alignment,
+            cell_transforms,
+            x_len,
+            y_len,
+            cell_size: geometry.cell_size,
+            culling: SpriteGridCulling::Enabled {
+                margin: 1.5 * geometry.cell_size,
+            },
+        }
     }
 
     pub fn grid_size(&self) -> Vec2 {
-       vec2(self.x_len as f32, self.y_len as f32) * self.cell_size
+        vec2(self.x_len as f32, self.y_len as f32) * self.cell_size
     }
-    
+
     pub fn set(&mut self, [x, y]: [usize; 2], cell: impl Into<SpriteCell>) {
         self.sprite_cells[x][y] = Some(cell.into());
     }
 
     /// iterate through the non-empty sprite cells in the sub-grid
     /// defined by the given ranges
-    pub fn iter(&self, xs: Range<usize>, ys: Range<usize>) -> impl Iterator<Item=([usize; 2], &SpriteCell)> {
-        xs.flat_map(move |x| 
-            ys.clone().filter_map(move |y| 
-                self[[x, y]].as_ref().map(|s| ([x, y], s))
-            )
-        )       
+    pub fn iter(
+        &self,
+        xs: Range<usize>,
+        ys: Range<usize>,
+    ) -> impl Iterator<Item = ([usize; 2], &SpriteCell)> {
+        xs.flat_map(move |x| {
+            ys.clone()
+                .filter_map(move |y| self[[x, y]].as_ref().map(|s| ([x, y], s)))
+        })
     }
 }
 
 impl Index<[usize; 2]> for SpriteGrid {
-    type Output=Option<SpriteCell>;
+    type Output = Option<SpriteCell>;
 
     fn index(&self, [x, y]: [usize; 2]) -> &Self::Output {
         &self.sprite_cells[x][y]
